@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Бобор ио — Звуки и анимация | кликер с престижем</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800;900&family=MedievalSharp&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(ellipse at 20% 30%, #1f1406, #0a0602);
+            font-family: 'Cinzel', 'MedievalSharp', 'Georgia', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* анимация появления элементов */
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.92) translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .game-container {
+            max-width: 1550px;
+            width: 100%;
+            background: linear-gradient(145deg, #ecdbba, #cfaa6e);
+            border-radius: 80px 50px 80px 50px;
+            box-shadow: 0 35px 55px rgba(0,0,0,0.7), inset 0 2px 10px rgba(255,235,160,0.8);
+            padding: 30px 35px;
+            border: 12px double #c28a44;
+            border-style: inset outset outset inset;
+            position: relative;
+            z-index: 2;
+            animation: fadeInScale 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+        }
+
+        /* кнопка звука */
+        .sound-toggle {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: #2c1b0cd9;
+            backdrop-filter: blur(5px);
+            border-radius: 50px;
+            padding: 8px 16px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            border: 1px solid #ffd193;
+            z-index: 10;
+            color: #ffefbf;
+            transition: all 0.2s;
+        }
+        .sound-toggle:hover {
+            background: #4f3219;
+            transform: scale(1.05);
+        }
+
+        .title-section {
+            text-align: center;
+            margin-bottom: 35px;
+            border-bottom: 4px solid #c1833a;
+            padding-bottom: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 60px;
+        }
+        .game-title {
+            font-size: 5rem;
+            font-weight: 900;
+            letter-spacing: 12px;
+            background: linear-gradient(135deg, #fff0c0, #efbc6e, #bb782e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 8px 8px 0 #38200c;
+            animation: titlePulse 2.5s infinite alternate;
+        }
+        @keyframes titlePulse {
+            0% { filter: drop-shadow(0 0 3px #f5bc70); }
+            100% { filter: drop-shadow(0 0 12px #ffdd99); }
+        }
+        .subtitle {
+            background: #211407d9;
+            backdrop-filter: blur(4px);
+            padding: 10px 32px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff2cf;
+            display: inline-block;
+            border: 1px solid #ffd193;
+            box-shadow: 0 4px 12px black;
+        }
+
+        .game-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: center;
+        }
+
+        .beaver-sanctum {
+            flex: 2;
+            min-width: 320px;
+            background: #c69056;
+            background-image: radial-gradient(circle at 20% 30%, #b87a42 1px, transparent 1px);
+            background-size: 22px 22px;
+            border-radius: 90px 50px 90px 50px;
+            box-shadow: inset 0 0 0 5px #ffedbc, 0 25px 35px rgba(0,0,0,0.5);
+            padding: 28px 20px;
+            text-align: center;
+            animation: fadeInScale 0.6s 0.1s backwards;
+        }
+        .beaver-portrait {
+            cursor: pointer;
+            display: inline-block;
+            background: radial-gradient(circle at 40% 40%, #784f27, #2f1908);
+            padding: 18px 24px 12px 24px;
+            border-radius: 260px;
+            box-shadow: 0 22px 0 #241205, inset 0 5px 18px #ffdead;
+            transition: transform 0.05s linear, box-shadow 0.1s;
+            margin-bottom: 25px;
+        }
+        .beaver-portrait:active {
+            transform: scale(0.92);
+            box-shadow: 0 8px 0 #241205;
+        }
+        .beaver-svg {
+            width: 240px;
+            height: 240px;
+            filter: drop-shadow(10px 12px 0 #2f1807);
+        }
+        .click-hint {
+            background: #2c1b0cd9;
+            backdrop-filter: blur(6px);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #ffefbf;
+            border: 1px solid #fdcb7a;
+        }
+        .wood-stats {
+            background: #1a1007e0;
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 70px;
+            border: 1px solid #f8cf8c;
+            box-shadow: inset 0 0 12px #ffcc8833, 0 8px 15px black;
+            color: #fff3be;
+        }
+        .wood-amount {
+            font-size: 4rem;
+            font-weight: 900;
+            color: #fff3be;
+            text-shadow: 5px 5px 0 #794a1e;
+        }
+
+        .upgrades-panel {
+            flex: 3;
+            min-width: 380px;
+            background: #2a1d0ee0;
+            backdrop-filter: blur(12px);
+            border-radius: 65px 35px 65px 35px;
+            padding: 25px;
+            border: 2px solid #ffefb0;
+            box-shadow: 0 12px 28px black;
+            animation: fadeInScale 0.6s 0.2s backwards;
+        }
+
+        .stat-card {
+            background: #1f1306f2;
+            border-radius: 45px;
+            padding: 14px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #fff2dd;
+            border-left: 12px solid #f5bc6c;
+            box-shadow: 0 5px 12px #00000040;
+            text-shadow: 1px 1px 0 #00000066;
+        }
+
+        .upgrade-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+        .upgrade-button {
+            background: linear-gradient(145deg, #7a562f, #4d2e12);
+            border: 2px solid #fde6b3;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #fff7e6;
+            padding: 12px 8px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.12s linear;
+            box-shadow: 0 8px 0 #3f2712;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            text-shadow: 1px 1px 0 #2a1a08;
+        }
+        .upgrade-button:active {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 #3f2712;
+        }
+        .upgrade-button.disabled {
+            opacity: 0.55;
+            filter: grayscale(0.4);
+            transform: none;
+            cursor: not-allowed;
+        }
+        .upgrade-name {
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #ffefcf;
+        }
+        .upgrade-cost {
+            background: #2e1a08;
+            margin-top: 8px;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            display: inline-block;
+            font-weight: bold;
+            color: #ffdca8;
+        }
+        .prestige-section {
+            background: #2e1b0ae6;
+            border-radius: 40px;
+            padding: 12px;
+            margin-top: 16px;
+            text-align: center;
+            border: 1px solid #ffcb86;
+            color: #fff0cf;
+        }
+        .prestige-btn {
+            background: #aa6a2c;
+            border: none;
+            font-family: inherit;
+            font-weight: bold;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: #ffefcf;
+            cursor: pointer;
+            margin-top: 6px;
+        }
+        .achievement-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .badge {
+            background: #3a2816;
+            border-radius: 50px;
+            padding: 5px 12px;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+            color: #ffefcf;
+        }
+        .badge.unlocked {
+            background: radial-gradient(circle, #f7bc6c, #c47d32);
+            color: #281a08;
+            box-shadow: 0 0 12px #ffbc60;
+        }
+        .chronicle {
+            background: #1f1407f2;
+            border-radius: 40px;
+            margin-top: 20px;
+            padding: 10px;
+        }
+        .log-list {
+            max-height: 120px;
+            overflow-y: auto;
+            font-size: 0.75rem;
+            color: #fff7e0;
+            font-weight: 500;
+            text-shadow: 0px 0px 2px black;
+        }
+        .reset-btn, .prestige-btn {
+            background: #75471f;
+            transition: all 0.2s;
+            border: none;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #ffefcf;
+        }
+        .reset-btn:hover, .prestige-btn:hover {
+            background: #9f622e;
+            box-shadow: 0 0 10px #ffbc60;
+        }
+        .event-choice {
+            background: #2d1f0e;
+            border-radius: 30px;
+            padding: 8px;
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .event-choice button {
+            background: #c2823a;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            color: #fff0cf;
+        }
+        .achievement-area {
+            margin-top: 15px;
+        }
+        .achievement-title {
+            color: #ffd48a;
+            margin-bottom: 6px;
+        }
+        .stat-card span:first-child {
+            color: #fff2cf;
+        }
+        .stat-card span:last-child {
+            color: #ffdfaa;
+            font-weight: 900;
+        }
+        .floating-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ffeaad;
+            text-shadow: 3px 3px 0 #7e481f;
+            animation: floatUp 0.9s forwards;
+            z-index: 1000;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(0.6);}
+            100% { opacity: 0; transform: translateY(-160px) scale(1.2);}
+        }
+        .wood-particle {
+            position: fixed;
+            width: 14px;
+            height: 14px;
+            background: radial-gradient(circle, #f5bc7c, #9b5e2a);
+            clip-path: polygon(20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%, 0% 50%);
+            animation: flyAway 0.9s forwards;
+            pointer-events: none;
+            z-index: 1001;
+        }
+        @keyframes flyAway {
+            0% { transform: translate(0,0) rotate(0); opacity: 0.9; }
+            100% { transform: translate(var(--dx), var(--dy)) rotate(300deg); opacity: 0; }
+        }
+        @media (max-width: 800px) {
+            .game-title { font-size: 2.8rem; }
+            .beaver-svg { width: 160px; height: 160px; }
+            .upgrade-grid { grid-template-columns: 1fr; }
+            .stat-card { font-size: 1rem; }
+            .sound-toggle { top: 10px; right: 15px; font-size: 1rem; padding: 4px 10px; }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="sound-toggle" id="soundToggle">🔊 Звук вкл</div>
+    <div class="title-section">
+        <div class="game-title">БОБОР ИО</div>
+        <div class="subtitle">⚜️ Легендарное издание · Слава и Престиж ⚜️</div>
+    </div>
+    <div class="game-layout">
+        <div class="beaver-sanctum">
+            <div class="beaver-portrait" id="clickBeaverBtn">
+                <svg class="beaver-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <pattern id="fur" patternUnits="userSpaceOnUse" width="5" height="5">
+                            <rect width="5" height="5" fill="#A86430"/>
+                            <circle cx="2" cy="2" r="0.7" fill="#6E3D1A" opacity="0.6"/>
+                        </pattern>
+                        <pattern id="tailPattern" patternUnits="userSpaceOnUse" width="10" height="10">
+                            <rect width="10" height="10" fill="#B46F38"/>
+                            <path d="M0 5 L10 5 M3 0 L3 10 M7 0 L7 10" stroke="#6A3C18" stroke-width="0.8"/>
+                        </pattern>
+                    </defs>
+                    <ellipse cx="100" cy="120" rx="52" ry="44" fill="url(#fur)" stroke="#3A1C08" stroke-width="2"/>
+                    <circle cx="100" cy="80" r="38" fill="url(#fur)" stroke="#3A1C08" stroke-width="2"/>
+                    <ellipse cx="78" cy="86" rx="12" ry="10" fill="#E5B579" opacity="0.9"/>
+                    <ellipse cx="122" cy="86" rx="12" ry="10" fill="#E5B579" opacity="0.9"/>
+                    <ellipse cx="68" cy="58" rx="10" ry="14" fill="#5E3419" stroke="#2C1305" stroke-width="1.5" transform="rotate(-20 68 58)"/>
+                    <ellipse cx="132" cy="58" rx="10" ry="14" fill="#5E3419" stroke="#2C1305" stroke-width="1.5" transform="rotate(20 132 58)"/>
+                    <circle cx="84" cy="74" r="6" fill="#0A0401"/>
+                    <circle cx="116" cy="74" r="6" fill="#0A0401"/>
+                    <circle cx="86" cy="72" r="2" fill="white"/>
+                    <circle cx="118" cy="72" r="2" fill="white"/>
+                    <ellipse cx="100" cy="88" rx="7" ry="5" fill="#251003"/>
+                    <g id="jawsGroup">
+                        <polygon points="92,94 97,105 103,105 108,94" fill="#FFF2DC" stroke="#DBA15A" stroke-width="1"/>
+                        <polygon points="94,105 98,113 102,113 106,105" fill="#FFF2DC" stroke="#DBA15A" stroke-width="1"/>
+                    </g>
+                    <ellipse cx="60" cy="140" rx="14" ry="10" fill="url(#fur)" transform="rotate(-30 60 140)"/>
+                    <ellipse cx="140" cy="140" rx="14" ry="10" fill="url(#fur)" transform="rotate(30 140 140)"/>
+                    <path d="M100 155 Q135 165 145 185 Q150 200 130 195 Q110 188 100 170 Z" fill="url(#tailPattern)" stroke="#4C2A10" stroke-width="2"/>
+                    <ellipse cx="100" cy="125" rx="35" ry="28" fill="#DCAA6E" opacity="0.35"/>
+                </svg>
+            </div>
+            <div class="click-hint">⚡ Ударь по бобру, дабы добыть древесину ⚡</div>
+            <div class="wood-stats">
+                <span>🪵 ДРЕВЕСИНА В СОКРОВИЩНИЦЕ</span><br>
+                <span class="wood-amount" id="woodDisplay">0</span>
+            </div>
+            <div style="color: #ffefbf;">⚔️ Сила клика: <strong id="clickPowerDisplay">1</strong> 🪓</div>
+            <div style="color: #ffefbf;">📈 Множитель дохода: <strong id="globalMultiplier">1.00</strong>x</div>
+            <div style="color: #ffefbf;">✨ Престиж бонус: <strong id="prestigeBonusDisplay">0</strong>%</div>
+        </div>
+
+        <div class="upgrades-panel">
+            <div class="stat-card"><span>🐾 Бобры-строители (+1)</span><span id="beaverCountDisplay">0</span></div>
+            <div class="stat-card"><span>🏛️ Инженеры (+4)</span><span id="engineerCountDisplay">0</span></div>
+            <div class="stat-card"><span>🏭 Лесопилки (+12)</span><span id="millCountDisplay">0</span></div>
+            <div class="stat-card"><span>🏰 Бобровый замок (+40)</span><span id="castleCountDisplay">0</span></div>
+            <div class="stat-card"><span>📈 Доход в секунду</span><span id="incomePerSec">0</span> 🪵</div>
+
+            <div class="upgrade-grid">
+                <div id="buyBeaverBtn" class="upgrade-button"><div class="upgrade-name">🦫 Строитель</div><div class="upgrade-cost" id="beaverCostDisplay">10</div></div>
+                <div id="buyEngineerBtn" class="upgrade-button"><div class="upgrade-name">⚙️ Инженер</div><div class="upgrade-cost" id="engineerCostDisplay">80</div></div>
+                <div id="buyMillBtn" class="upgrade-button"><div class="upgrade-name">🏭 Лесопилка</div><div class="upgrade-cost" id="millCostDisplay">350</div></div>
+                <div id="buyCastleBtn" class="upgrade-button"><div class="upgrade-name">🏰 Бобровый замок</div><div class="upgrade-cost" id="castleCostDisplay">1200</div></div>
+                <div id="buyClickUpgradeBtn" class="upgrade-button"><div class="upgrade-name">🗡️ Улучшить резцы</div><div class="upgrade-cost" id="clickUpgradeCostDisplay">50</div></div>
+                <div id="buyDamBtn" class="upgrade-button"><div class="upgrade-name">🌊 Великая плотина</div><div class="upgrade-cost" id="damCostDisplay">300</div></div>
+                <div id="buyForgeBtn" class="upgrade-button"><div class="upgrade-name">🔥 Кузнечная гильдия</div><div class="upgrade-cost" id="forgeCostDisplay">600</div></div>
+                <div id="buyTotemBtn" class="upgrade-button"><div class="upgrade-name">🌿 Тотем предков</div><div class="upgrade-cost" id="totemCostDisplay">1000</div></div>
+                <div id="buyMagicBtn" class="upgrade-button"><div class="upgrade-name">✨ Древняя магия</div><div class="upgrade-cost" id="magicCostDisplay">1800</div></div>
+                <div id="buyArtifactBtn" class="upgrade-button"><div class="upgrade-name">🏆 Артефакт славы</div><div class="upgrade-cost" id="artifactCostDisplay">3000</div></div>
+            </div>
+
+            <div class="prestige-section">
+                <span>🏆 Очки престижа: <strong id="prestigePoints">0</strong></span><br>
+                <span>За 1 престиж: +5% ко всему доходу и силе клика</span><br>
+                <button id="prestigeBtn" class="prestige-btn">♾️ ВОЗРОДИТЬ ГИЛЬДИЮ (Престиж)</button>
+                <div style="font-size:0.7rem; margin-top:6px; color:#ffdfb0;">Требуется 15 000 добытой древесины для +1 уровня престижа</div>
+            </div>
+
+            <div class="achievement-area">
+                <div class="achievement-title">🏅 ВЕЛИКИЕ СВЕРШЕНИЯ</div>
+                <div class="achievement-list" id="achievementList"></div>
+            </div>
+
+            <div id="eventContainer" style="margin-top: 15px;"></div>
+            <div class="chronicle">
+                <div class="achievement-title">📜 Летопись эпох</div>
+                <ul class="log-list" id="logList"><li>🌟 Да начнётся правление бобров!</li></ul>
+            </div>
+            <button id="resetGameBtn" class="reset-btn">🔄 Начать заново (без престижа)</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // =============== ЗВУКИ И МУЗЫКА через Web Audio API ===============
+    let audioCtx = null;
+    let musicSource = null;
+    let musicGain = null;
+    let sfxGain = null;
+    let soundEnabled = true;
+    let musicStarted = false;
+
+    function initAudio() {
+        if (audioCtx) return;
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        musicGain = audioCtx.createGain();
+        sfxGain = audioCtx.createGain();
+        musicGain.gain.value = 0.35;
+        sfxGain.gain.value = 0.45;
+        musicGain.connect(audioCtx.destination);
+        sfxGain.connect(audioCtx.destination);
+        startBackgroundMusic();
+    }
+
+    // Простая средневековая дрон-мелодия (ломаная квинта)
+    function startBackgroundMusic() {
+        if (!audioCtx || musicSource) return;
+        function playLoop() {
+            if (!soundEnabled || !audioCtx) return;
+            const now = audioCtx.currentTime;
+            musicSource = audioCtx.createBufferSource();
+            const duration = 6.8;
+            const sampleRate = audioCtx.sampleRate;
+            const buffer = audioCtx.createBuffer(2, sampleRate * duration, sampleRate);
+            for (let ch = 0; ch < 2; ch++) {
+                const chan = buffer.getChannelData(ch);
+                for (let i = 0; i < chan.length; i++) {
+                    const t = i / sampleRate;
+                    let note = 0;
+                    // основа: дрон A3 (220Hz) и E3 (164.8)
+                    const drone1 = Math.sin(2 * Math.PI * 220 * t) * 0.3;
+                    const drone2 = Math.sin(2 * Math.PI * 164.8 * t) * 0.25;
+                    let melody = 0;
+                    if (t % 6 < 1.5) melody += Math.sin(2 * Math.PI * 293.7 * t * 2) * 0.1; // D4
+                    else if (t % 6 < 3) melody += Math.sin(2 * Math.PI * 261.6 * t * 1.5) * 0.12;
+                    else melody += Math.sin(2 * Math.PI * 349.2 * t * 1.2) * 0.1;
+                    const noise = (Math.random() - 0.5) * 0.04;
+                    chan[i] = (drone1 + drone2 + melody) * 0.7 + noise;
+                }
+            }
+            musicSource.buffer = buffer;
+            musicSource.loop = true;
+            musicSource.connect(musicGain);
+            musicSource.start(0);
+            musicSource.onended = () => { if (soundEnabled && audioCtx) playLoop(); };
+        }
+        playLoop();
+    }
+
+    function playClickSound() {
+        if (!soundEnabled || !audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = 880;
+        gain.gain.value = 0.2;
+        osc.connect(gain);
+        gain.connect(sfxGain);
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+        osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function playPurchaseSound() {
+        if (!soundEnabled || !audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = 523.25;
+        gain.gain.value = 0.25;
+        osc.connect(gain);
+        gain.connect(sfxGain);
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.2);
+        osc.stop(audioCtx.currentTime + 0.2);
+        setTimeout(() => {
+            const osc2 = audioCtx.createOscillator();
+            const gain2 = audioCtx.createGain();
+            osc2.type = 'triangle';
+            osc2.frequency.value = 659.25;
+            gain2.gain.value = 0.2;
+            osc2.connect(gain2);
+            gain2.connect(sfxGain);
+            osc2.start();
+            gain2.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.25);
+            osc2.stop(audioCtx.currentTime + 0.25);
+        }, 70);
+    }
+
+    function playEventSound() {
+        if (!soundEnabled || !audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = 659.25;
+        gain.gain.value = 0.3;
+        osc.connect(gain);
+        gain.connect(sfxGain);
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+        osc.stop(audioCtx.currentTime + 0.5);
+    }
+
+    function playPrestigeSound() {
+        if (!soundEnabled || !audioCtx) return;
+        for (let i = 0; i < 3; i++) {
+            setTimeout(() => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = 440 + i * 110;
+                gain.gain.value = 0.2;
+                osc.connect(gain);
+                gain.connect(sfxGain);
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+                osc.stop(audioCtx.currentTime + 0.4);
+            }, i * 100);
+        }
+    }
+
+    // =============== ОСТАЛЬНАЯ ИГРОВАЯ ЛОГИКА ===============
+    let wood = 0;
+    let clickUpgradeLevel = 0;
+    let beaverCount = 0, engineerCount = 0, millCount = 0, castleCount = 0;
+    let damLevel = 0;
+    let forgeOwned = false, totemOwned = false, magicOwned = false, artifactOwned = false;
+    let prestigeLevel = 0;
+    let totalWoodEarned = 0;
+    let totalClicks = 0;
+    let globalIncomeMultiplier = 1.0;
+    let clickPower = 1;
+    let clickBuff = 1.0;
+    let incomeBuff = 1.0;
+
+    let achievements = {
+        click10: false, wood100: false, beaver10: false, engineer5: false, mill5: false, castle1: false,
+        damBuilt: false, totemTaken: false, magicMaster: false, artifactOwn: false, prestige1: false,
+        totalWood1000: false, wood100k: false
+    };
+
+    function getBeaverCost() { let base = 12; return Math.floor((base + beaverCount * 6) * (forgeOwned ? 0.9 : 1)); }
+    function getEngineerCost() { let base = 80; return Math.floor((base + engineerCount * 28) * (forgeOwned ? 0.9 : 1)); }
+    function getMillCost() { let base = 350; return Math.floor((base + millCount * 110) * (forgeOwned ? 0.9 : 1)); }
+    function getCastleCost() { let base = 1200; return Math.floor((base + castleCount * 400) * (forgeOwned ? 0.9 : 1)); }
+    function getClickUpgradeCost() { let base = 50 + clickUpgradeLevel * 35; return Math.floor(base * (forgeOwned ? 0.9 : 1)); }
+    function getDamCost() { let base = 300 + damLevel * 220; return Math.floor(base * (forgeOwned ? 0.9 : 1)); }
+    function getForgeCost() { return forgeOwned ? 999999 : 600; }
+    function getTotemCost() { return totemOwned ? 999999 : 1000; }
+    function getMagicCost() { return magicOwned ? 999999 : 1800; }
+    function getArtifactCost() { return artifactOwned ? 999999 : 3000; }
+
+    function recalcMultipliers() {
+        let damBonus = 1 + (damLevel * 0.15);
+        let prestigeBonus = 1 + (prestigeLevel * 0.05);
+        let artifactBonus = artifactOwned ? 1.10 : 1.0;
+        globalIncomeMultiplier = damBonus * prestigeBonus * artifactBonus * incomeBuff;
+        let clickBase = 1 + clickUpgradeLevel;
+        let clickBonuses = (totemOwned ? 1.5 : 1.0) * (magicOwned ? 1.25 : 1.0) * (artifactOwned ? 1.25 : 1.0) * prestigeBonus * clickBuff;
+        clickPower = Math.floor(clickBase * clickBonuses);
+        if (clickPower < 1) clickPower = 1;
+        document.getElementById('clickPowerDisplay').innerText = clickPower;
+        document.getElementById('globalMultiplier').innerText = globalIncomeMultiplier.toFixed(2);
+        document.getElementById('prestigeBonusDisplay').innerText = (prestigeLevel * 5);
+        document.getElementById('prestigePoints').innerText = prestigeLevel;
+    }
+
+    function getTotalIncomePerSec() {
+        let base = beaverCount * 1 + engineerCount * 4 + millCount * 12 + castleCount * 40;
+        return Math.floor(base * globalIncomeMultiplier);
+    }
+
+    function updateUI() {
+        document.getElementById('woodDisplay').innerText = Math.floor(wood);
+        document.getElementById('beaverCountDisplay').innerText = beaverCount;
+        document.getElementById('engineerCountDisplay').innerText = engineerCount;
+        document.getElementById('millCountDisplay').innerText = millCount;
+        document.getElementById('castleCountDisplay').innerText = castleCount;
+        document.getElementById('incomePerSec').innerText = getTotalIncomePerSec();
+        document.getElementById('beaverCostDisplay').innerText = getBeaverCost();
+        document.getElementById('engineerCostDisplay').innerText = getEngineerCost();
+        document.getElementById('millCostDisplay').innerText = getMillCost();
+        document.getElementById('castleCostDisplay').innerText = getCastleCost();
+        document.getElementById('clickUpgradeCostDisplay').innerText = getClickUpgradeCost();
+        document.getElementById('damCostDisplay').innerText = getDamCost();
+        document.getElementById('forgeCostDisplay').innerText = getForgeCost();
+        document.getElementById('totemCostDisplay').innerText = getTotemCost();
+        document.getElementById('magicCostDisplay').innerText = getMagicCost();
+        document.getElementById('artifactCostDisplay').innerText = getArtifactCost();
+        let btns = ['buyBeaverBtn','buyEngineerBtn','buyMillBtn','buyCastleBtn','buyClickUpgradeBtn','buyDamBtn','buyForgeBtn','buyTotemBtn','buyMagicBtn','buyArtifactBtn'];
+        let costs = [getBeaverCost(), getEngineerCost(), getMillCost(), getCastleCost(), getClickUpgradeCost(), getDamCost(), getForgeCost(), getTotemCost(), getMagicCost(), getArtifactCost()];
+        btns.forEach((id, idx) => {
+            let btn = document.getElementById(id);
+            if (wood < costs[idx]) btn.classList.add('disabled');
+            else btn.classList.remove('disabled');
+        });
+        if (forgeOwned) document.getElementById('buyForgeBtn').classList.add('disabled');
+        if (totemOwned) document.getElementById('buyTotemBtn').classList.add('disabled');
+        if (magicOwned) document.getElementById('buyMagicBtn').classList.add('disabled');
+        if (artifactOwned) document.getElementById('buyArtifactBtn').classList.add('disabled');
+        updateAchievementsUI();
+    }
+
+    function addMessage(msg) {
+        let log = document.getElementById('logList');
+        let li = document.createElement('li');
+        li.innerHTML = `📜 ${new Date().toLocaleTimeString().slice(0,5)} — ${msg}`;
+        log.prepend(li);
+        if (log.children.length > 16) log.removeChild(log.lastChild);
+    }
+
+    function updateAchievementsUI() {
+        let container = document.getElementById('achievementList');
+        container.innerHTML = '';
+        let achList = [
+            {key:'click10', name:'🐾 10 кликов'},{key:'wood100', name:'🪵 100 древесины'},{key:'beaver10', name:'🦫 10 строителей'},
+            {key:'engineer5', name:'⚙️ 5 инженеров'},{key:'mill5', name:'🏭 5 лесопилок'},{key:'castle1', name:'🏰 1 замок'},
+            {key:'damBuilt', name:'🌊 Плотина'},{key:'totemTaken', name:'🌿 Тотем'},{key:'magicMaster', name:'✨ Магия'},
+            {key:'artifactOwn', name:'🏆 Артефакт'},{key:'prestige1', name:'♾️ Престиж'},{key:'totalWood1000', name:'💎 1000 древесины'},
+            {key:'wood100k', name:'👑 100 000 древесины'}
+        ];
+        for(let a of achList) {
+            let badge = document.createElement('div');
+            badge.className = 'badge';
+            if(achievements[a.key]) badge.classList.add('unlocked');
+            badge.innerText = a.name;
+            container.appendChild(badge);
+        }
+    }
+
+    function checkAchievements() {
+        let changed = false;
+        if (!achievements.click10 && totalClicks >= 10) { achievements.click10 = true; addMessage("🏅 10 кликов!"); playEventSound(); changed=true; }
+        if (!achievements.wood100 && wood >= 100) { achievements.wood100 = true; addMessage("🏅 100 древесины!"); playEventSound(); changed=true; }
+        if (!achievements.beaver10 && beaverCount >= 10) { achievements.beaver10 = true; addMessage("🏅 10 строителей"); playEventSound(); changed=true; }
+        if (!achievements.engineer5 && engineerCount >= 5) { achievements.engineer5 = true; addMessage("🏅 5 инженеров"); playEventSound(); changed=true; }
+        if (!achievements.mill5 && millCount >= 5) { achievements.mill5 = true; addMessage("🏅 5 лесопилок!"); playEventSound(); changed=true; }
+        if (!achievements.castle1 && castleCount >= 1) { achievements.castle1 = true; addMessage("🏅 Первый замок!"); playEventSound(); changed=true; }
+        if (!achievements.damBuilt && damLevel >= 1) { achievements.damBuilt = true; addMessage("🏅 Великая плотина построена!"); playEventSound(); changed=true; }
+        if (!achievements.totemTaken && totemOwned) { achievements.totemTaken = true; addMessage("🏅 Тотем предков активирован!"); playEventSound(); changed=true; }
+        if (!achievements.magicMaster && magicOwned) { achievements.magicMaster = true; addMessage("🏅 Древняя магия влита!"); playEventSound(); changed=true; }
+        if (!achievements.artifactOwn && artifactOwned) { achievements.artifactOwn = true; addMessage("🏅 Артефакт славы найден!"); playEventSound(); changed=true; }
+        if (!achievements.prestige1 && prestigeLevel >= 1) { achievements.prestige1 = true; addMessage("🏅 Первое возрождение! Престиж!"); playEventSound(); changed=true; }
+        if (!achievements.totalWood1000 && totalWoodEarned >= 1000) { achievements.totalWood1000 = true; addMessage("🏅 1000 древесины всего"); playEventSound(); changed=true; }
+        if (!achievements.wood100k && totalWoodEarned >= 100000) { achievements.wood100k = true; addMessage("👑 100 000 древесины! Легенда!"); playEventSound(); changed=true; }
+        if (changed) updateAchievementsUI();
+    }
+
+    // визуальные эффекты
+    function showFloatingNumber(value, x, y) {
+        let div = document.createElement('div');
+        div.className = 'floating-number';
+        div.textContent = `+${value}`;
+        div.style.position = 'fixed';
+        div.style.left = `${x-30}px`;
+        div.style.top = `${y-45}px`;
+        div.style.fontSize = '2.2rem';
+        div.style.pointerEvents = 'none';
+        document.body.appendChild(div);
+        setTimeout(()=>div.remove(),800);
+    }
+    function createParticles(x, y) {
+        for(let i=0;i<14;i++) {
+            let p = document.createElement('div');
+            p.className = 'wood-particle';
+            let angle = Math.random() * Math.PI * 2;
+            let dist = 40 + Math.random() * 100;
+            let dx = Math.cos(angle) * dist;
+            let dy = Math.sin(angle) * dist - 50;
+            p.style.setProperty('--dx', dx + 'px');
+            p.style.setProperty('--dy', dy + 'px');
+            p.style.left = (x - 7) + 'px';
+            p.style.top = (y - 7) + 'px';
+            document.body.appendChild(p);
+            setTimeout(()=>p.remove(), 900);
+        }
+    }
+    function animateBite() {
+        let jaws = document.getElementById('jawsGroup');
+        if(jaws) { jaws.style.transform = "scaleY(0.6) translateY(8px)"; setTimeout(()=> jaws.style.transform = "", 130); }
+        let svg = document.getElementById('beaverSvg');
+        svg.style.transform = "scale(0.93)";
+        setTimeout(()=> svg.style.transform = "", 120);
+    }
+
+    function handleBeaverClick(e) {
+        if (!musicStarted && audioCtx) {
+            audioCtx.resume();
+            musicStarted = true;
+        }
+        let gain = clickPower;
+        wood += gain;
+        totalWoodEarned += gain;
+        totalClicks++;
+        updateUI();
+        let cx = e.clientX, cy = e.clientY;
+        if(e.touches) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+        if(cx && cy) { showFloatingNumber(gain, cx, cy); createParticles(cx, cy); }
+        addMessage(`🪓 Удар резцами! +${gain} древесины.`);
+        playClickSound();
+        checkAchievements();
+        saveGame();
+        animateBite();
+    }
+
+    function buyWithSound(fn, name) { fn(); playPurchaseSound(); addMessage(`💰 Куплено: ${name}`); }
+    function buyBeaver() { let c=getBeaverCost(); if(wood>=c){ wood-=c; beaverCount++; addMessage(`🐿️ Нанят строитель! +1/сек`); updateUI(); saveGame(); checkAchievements(); playPurchaseSound();} }
+    function buyEngineer() { let c=getEngineerCost(); if(wood>=c){ wood-=c; engineerCount++; addMessage(`⚙️ Инженер! +4/сек`); updateUI(); saveGame(); checkAchievements(); playPurchaseSound();} }
+    function buyMill() { let c=getMillCost(); if(wood>=c){ wood-=c; millCount++; addMessage(`🏭 Лесопилка +12/сек`); updateUI(); saveGame(); checkAchievements(); playPurchaseSound();} }
+    function buyCastle() { let c=getCastleCost(); if(wood>=c){ wood-=c; castleCount++; addMessage(`🏰 Замок бобров +40/сек!`); updateUI(); saveGame(); checkAchievements(); playPurchaseSound();} }
+    function buyClickUpgrade() { let c=getClickUpgradeCost(); if(wood>=c){ wood-=c; clickUpgradeLevel++; recalcMultipliers(); addMessage(`🗡️ Резцы +${clickUpgradeLevel}! Сила ${clickPower}`); updateUI(); saveGame(); playPurchaseSound();} }
+    function buyDam() { let c=getDamCost(); if(wood>=c){ wood-=c; damLevel++; recalcMultipliers(); addMessage(`🌊 Плотина ${damLevel} ур., доход +15%`); updateUI(); saveGame(); checkAchievements(); playPurchaseSound();} }
+    function buyForge() { if(forgeOwned) return; let c=getForgeCost(); if(wood>=c){ wood-=c; forgeOwned=true; addMessage(`🔥 Кузница основана! Скидка -10%`); updateUI(); saveGame(); checkAchievements(); playPurchaseSound();} }
+    function buyTotem() { if(totemOwned) return; let c=getTotemCost(); if(wood>=c){ wood-=c; totemOwned=true; recalcMultipliers(); addMessage(`🌿 Тотем предков +50% силы клика!`); updateUI(); saveGame(); checkAchievements(); playPurchaseSound();} }
+    function buyMagic() { if(magicOwned) return; let c=getMagicCost(); if(wood>=c){ wood-=c; magicOwned=true; recalcMultipliers(); addMessage(`✨ Древняя магия +25% к клику!`); updateUI(); saveGame(); checkAchievements(); playPurchaseSound();} }
+    function buyArtifact() { if(artifactOwned) return; let c=getArtifactCost(); if(wood>=c){ wood-=c; artifactOwned=true; recalcMultipliers(); addMessage(`🏆 Артефакт славы! +10% дохода и +25% силы клика!`); updateUI(); saveGame(); checkAchievements(); playPurchaseSound();} }
+
+    function doPrestige() {
+        let required = 15000;
+        if(totalWoodEarned >= required) {
+            let gained = Math.floor(totalWoodEarned / 15000);
+            if(gained<1) gained=1;
+            prestigeLevel += gained;
+            wood = 0; clickUpgradeLevel = 0; beaverCount = 0; engineerCount = 0; millCount = 0; castleCount = 0;
+            damLevel = 0; forgeOwned = false; totemOwned = false; magicOwned = false; artifactOwned = false;
+            totalWoodEarned = 0; totalClicks = 0;
+            recalcMultipliers(); updateUI(); addMessage(`♾️ ВОЗРОЖДЕНИЕ! Престиж ${prestigeLevel}. Бонус +${prestigeLevel*5}% ко всему!`);
+            playPrestigeSound(); saveGame(); checkAchievements();
+        } else { addMessage(`❌ Нужно 15 000 добытой древесины (сейчас ${Math.floor(totalWoodEarned)}).`); }
+    }
+
+    function resetGame() {
+        if(confirm("Полностью обнулить всё, включая престиж?")) {
+            prestigeLevel = 0; wood = 0; clickUpgradeLevel = 0; beaverCount = 0; engineerCount = 0; millCount = 0; castleCount = 0;
+            damLevel = 0; forgeOwned = false; totemOwned = false; magicOwned = false; artifactOwned = false;
+            totalWoodEarned = 0; totalClicks = 0; clickBuff = 1.0; incomeBuff = 1.0;
+            achievements = { click10:false, wood100:false, beaver10:false, engineer5:false, mill5:false, castle1:false,
+                damBuilt:false, totemTaken:false, magicMaster:false, artifactOwn:false, prestige1:false, totalWood1000:false, wood100k:false };
+            recalcMultipliers(); updateUI(); addMessage("🔥 Полный сброс. Новая эра."); saveGame();
+        }
+    }
+
+    function spawnRandomEvent() {
+        if (Math.random() > 0.35) return;
+        let type = Math.floor(Math.random() * 3);
+        let container = document.getElementById('eventContainer');
+        container.innerHTML = '';
+        let banner = document.createElement('div');
+        banner.style.background = '#2c1c0cd9';
+        banner.style.borderRadius = '30px';
+        banner.style.padding = '10px';
+        banner.style.marginTop = '10px';
+        banner.style.color = '#fff0cf';
+        if (type === 0) {
+            banner.innerHTML = `<div>🌲 Бобры нашли древний лес! Получить +500 древесины или +1 уровень резцов?</div>
+            <div class="event-choice"><button id="eventChoiceA">+500🪵</button><button id="eventChoiceB">+1🗡️</button></div>`;
+            container.appendChild(banner);
+            document.getElementById('eventChoiceA').onclick = () => { wood += 500; totalWoodEarned += 500; addMessage(`🌳 Событие: +500 древесины!`); updateUI(); saveGame(); playEventSound(); container.innerHTML = ''; };
+            document.getElementById('eventChoiceB').onclick = () => { clickUpgradeLevel++; recalcMultipliers(); addMessage(`🗡️ Событие: резцы +1 уровень!`); updateUI(); saveGame(); playEventSound(); container.innerHTML = ''; };
+        } else if (type === 1) {
+            banner.innerHTML = `<div>🔥 Засуха! Выберите: +2 уровня плотины или +5 бобров-строителей?</div>
+            <div class="event-choice"><button id="eventChoiceA">+2 Плотины</button><button id="eventChoiceB">+5 Строителей</button></div>`;
+            container.appendChild(banner);
+            document.getElementById('eventChoiceA').onclick = () => { damLevel += 2; recalcMultipliers(); addMessage(`🌊 Плотина усилена на 2 уровня!`); updateUI(); saveGame(); playEventSound(); container.innerHTML = ''; };
+            document.getElementById('eventChoiceB').onclick = () => { beaverCount += 5; addMessage(`🐿️ +5 бобров-строителей!`); updateUI(); saveGame(); playEventSound(); container.innerHTML = ''; };
+        } else {
+            banner.innerHTML = `<div>✨ Магический вихрь! +10% к силе клика навсегда ИЛИ +15% к доходу навсегда?</div>
+            <div class="event-choice"><button id="eventChoiceA">+10% силы клика</button><button id="eventChoiceB">+15% дохода</button></div>`;
+            container.appendChild(banner);
+            document.getElementById('eventChoiceA').onclick = () => { clickBuff *= 1.10; recalcMultipliers(); addMessage(`✨ Сила клика увеличена на 10%!`); updateUI(); saveGame(); playEventSound(); container.innerHTML = ''; };
+            document.getElementById('eventChoiceB').onclick = () => { incomeBuff *= 1.15; recalcMultipliers(); addMessage(`📈 Доход увеличен на 15% навсегда!`); updateUI(); saveGame(); playEventSound(); container.innerHTML = ''; };
+        }
+        setTimeout(() => { if(container.firstChild) container.innerHTML = ''; }, 20000);
+    }
+
+    let incomeInterval, eventInterval;
+    function startIncome() { setInterval(()=>{ let gain=getTotalIncomePerSec(); if(gain>0){ wood+=gain; totalWoodEarned+=gain; updateUI(); if(Math.random()<0.08) addMessage(`🏡 Бобры принесли +${gain} древесины`); checkAchievements(); saveGame(); } }, 1000); }
+    function startEvents() { setInterval(()=>{ spawnRandomEvent(); }, 38000); }
+
+    function saveGame() { localStorage.setItem('beaverUltimateSave', JSON.stringify({ wood, clickUpgradeLevel, beaverCount, engineerCount, millCount, castleCount, damLevel, forgeOwned, totemOwned, magicOwned, artifactOwned, prestigeLevel, totalWoodEarned, totalClicks, achievements, clickBuff, incomeBuff })); }
+    function loadGame() {
+        let raw = localStorage.getItem('beaverUltimateSave');
+        if(!raw) return;
+        try {
+            let d = JSON.parse(raw);
+            wood = d.wood||0; clickUpgradeLevel = d.clickUpgradeLevel||0; beaverCount = d.beaverCount||0; engineerCount = d.engineerCount||0;
+            millCount = d.millCount||0; castleCount = d.castleCount||0; damLevel = d.damLevel||0; forgeOwned = d.forgeOwned||false;
+            totemOwned = d.totemOwned||false; magicOwned = d.magicOwned||false; artifactOwned = d.artifactOwned||false;
+            prestigeLevel = d.prestigeLevel||0; totalWoodEarned = d.totalWoodEarned||0; totalClicks = d.totalClicks||0;
+            if(d.achievements) achievements = {...achievements, ...d.achievements};
+            if(d.clickBuff) clickBuff = d.clickBuff;
+            if(d.incomeBuff) incomeBuff = d.incomeBuff;
+            recalcMultipliers(); updateUI(); addMessage("📜 Легенды загружены.");
+        } catch(e){}
+    }
+
+    // кнопка звука
+    const soundToggle = document.getElementById('soundToggle');
+    soundToggle.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        soundToggle.innerText = soundEnabled ? "🔊 Звук вкл" : "🔇 Звук выкл";
+        if (musicGain) musicGain.gain.value = soundEnabled ? 0.35 : 0;
+        if (sfxGain) sfxGain.gain.value = soundEnabled ? 0.45 : 0;
+        if (soundEnabled && !musicStarted && audioCtx) { audioCtx.resume(); musicStarted = true; }
+    });
+
+    function init() {
+        loadGame();
+        recalcMultipliers();
+        updateUI();
+        document.getElementById('clickBeaverBtn').addEventListener('click', handleBeaverClick);
+        document.getElementById('clickBeaverBtn').addEventListener('touchstart', (e)=>{ e.preventDefault(); handleBeaverClick(e); });
+        document.getElementById('buyBeaverBtn').addEventListener('click', buyBeaver);
+        document.getElementById('buyEngineerBtn').addEventListener('click', buyEngineer);
+        document.getElementById('buyMillBtn').addEventListener('click', buyMill);
+        document.getElementById('buyCastleBtn').addEventListener('click', buyCastle);
+        document.getElementById('buyClickUpgradeBtn').addEventListener('click', buyClickUpgrade);
+        document.getElementById('buyDamBtn').addEventListener('click', buyDam);
+        document.getElementById('buyForgeBtn').addEventListener('click', buyForge);
+        document.getElementById('buyTotemBtn').addEventListener('click', buyTotem);
+        document.getElementById('buyMagicBtn').addEventListener('click', buyMagic);
+        document.getElementById('buyArtifactBtn').addEventListener('click', buyArtifact);
+        document.getElementById('prestigeBtn').addEventListener('click', doPrestige);
+        document.getElementById('resetGameBtn').addEventListener('click', resetGame);
+        startIncome();
+        startEvents();
+        setInterval(()=>saveGame(), 6000);
+        // инициализация аудио по первому клику в любом месте
+        document.body.addEventListener('click', () => { if (!audioCtx) initAudio(); }, { once: true });
+    }
+    init();
+</script>
+</body>
+</html>
